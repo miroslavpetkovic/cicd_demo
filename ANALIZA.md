@@ -102,6 +102,7 @@ npm start                 # pokreni server → http://localhost:3000
 ### 7.1 Analiza i objašnjenje pipeline-a
 
 Pročitan i objašnjen originalni `ci.yml` (4 joba):
+
 - Struktura izvršavanja: `quality` i `test` paralelno → `build` → `deploy`
 - Objašnjena uloga svakog joba, uslovi pokretanja i razlog za takvu strukturu
 - Pojašnjena `concurrency` direktiva koja otkazuje zastarele pipeline run-ove
@@ -141,25 +142,28 @@ deploy (samo push na main)
 
 #### Izmene fajlova
 
-| Fajl | Izmena |
-|---|---|
-| `.github/workflows/ci.yml` | Potpuno prepisano — 6 jobova, keš, `npm ci` |
-| `jest.config.cjs` | Dodat `coverageThreshold` — minimum 80% za sve metrike |
+| Fajl                       | Izmena                                                 |
+| -------------------------- | ------------------------------------------------------ |
+| `.github/workflows/ci.yml` | Potpuno prepisano — 6 jobova, keš, `npm ci`            |
+| `jest.config.cjs`          | Dodat `coverageThreshold` — minimum 80% za sve metrike |
 
 #### Ključne optimizacije
 
 **Brzina:**
+
 - `node_modules` se instalira **jednom** u `install` jobu, keširano po `package-lock.json` hash-u
 - Svi ostali jobovi vraćaju keš umesto da ponovo instaliraju (~30–60s uštede po jobu)
 - `npm ci` umesto `npm install` — deterministično i brže
 - Runner pinirani na `ubuntu-24.04` umesto `ubuntu-latest`
 
 **Kvalitet:**
+
 - 80% coverage threshold u `jest.config.cjs` — pipeline pada ako pokrivenost padne ispod praga
 - Security sada je **poseban job** (`security`) odvojen od `quality` — jasno se vidi šta je palo
 - Coverage report se upload-uje čak i kad testovi padnu (`if: always()`)
 
 **Traceability:**
+
 - Build artifact nosi SHA commit-a u imenu: `build-${{ github.sha }}`
 - Deploy preuzima taj isti artifact — nikad ne rebuilda iz source-a
 - Artifacts se čuvaju 7 dana
