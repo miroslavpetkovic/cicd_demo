@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__read_text_file",
+      "Bash(node -e \"const p=require\\('./node_modules/jest/package.json'\\); console.log\\('jest:', p.version\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/ts-jest/package.json'\\); console.log\\('ts-jest:', p.version\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/eslint/package.json'\\); console.log\\('eslint:', p.version\\)\")",
+      "Bash(npm list *)",
+      "Bash(npx jest *)",
+      "Bash(npx eslint *)",
+      "Bash(node -e \"const g = require\\('globals'\\); console.log\\('globals ok, node keys:', Object.keys\\(g.node\\).slice\\(0,3\\)\\)\")",
+      "Bash(node -e \"const p=require\\('C:/Users/Miroslav/!Projekti/Cursera_ucenje/Claude_Code_for_Vibe_Coding/cicd-demo/node_modules/@types/jest/package.json'\\); console.log\\('@types/jest:', p.version\\)\")",
+      "Bash(node -e \"const p=require\\('C:/Users/Miroslav/!Projekti/Cursera_ucenje/Claude_Code_for_Vibe_Coding/cicd-demo/node_modules/@types/node/package.json'\\); console.log\\('@types/node:', p.version\\)\")",
+      "Bash(node -e \"const chunks=[]; process.stdin.on\\('data',c=>chunks.push\\(c\\)\\); process.stdin.on\\('end',\\(\\)=>{const p=JSON.parse\\(chunks.join\\(''\\)\\); console.log\\('main:', p.main, 'types:', p.types, 'typings:', p.typings\\)}\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(npm install *)",
+      "Bash(node *)",
+      "Bash(npm run *)"
+    ]
+  }
+}

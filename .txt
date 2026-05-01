@@ -1,0 +1,6 @@
+In this session we are going to bring together everything we have learned - testing, code quality,
+and security scanning - and automate it all so it runs without any human intervention every single time code is pushed to GitHub.
+
+This is called a CI/CD pipeline. CI stands for Continuous Integration - every code change is automatically tested and validated.
+CD stands for Continuous Deployment - if everything passes, the code is automatically deployed to production.
+Together they eliminate the biggest bottleneck in software development - the gap between writing code and getting it running in production.
