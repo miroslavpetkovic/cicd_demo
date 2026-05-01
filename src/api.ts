@@ -32,5 +32,5 @@ app.get("/courses/:id", (req, res) => {
 export { app };
 
 if (process.argv[1]?.includes("api")) {
-  app.listen(3000, () => console.log("Server running on port 3000"));
+  app.listen(3000, () => process.stdout.write("Server running on port 3000\n"));
 }
