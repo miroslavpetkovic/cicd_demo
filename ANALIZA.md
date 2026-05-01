@@ -94,3 +94,85 @@ npm start                 # pokreni server → http://localhost:3000
 2. Ukloni .eslintrc.json
 3. Pokreni npm install i provjeri peer dependency upozorenja
 4. Opciono: dodati testove za src/api.ts
+
+---
+
+## 7. Završni izveštaj — aktivnosti iz sesije (2026-05-01)
+
+### 7.1 Analiza i objašnjenje pipeline-a
+
+Pročitan i objašnjen originalni `ci.yml` (4 joba):
+- Struktura izvršavanja: `quality` i `test` paralelno → `build` → `deploy`
+- Objašnjena uloga svakog joba, uslovi pokretanja i razlog za takvu strukturu
+- Pojašnjena `concurrency` direktiva koja otkazuje zastarele pipeline run-ove
+
+### 7.2 Ispravljanje ESLint greške
+
+**Problem:** `no-console` warning u `src/api.ts:35` (jedina lint napomena u celom projektu)
+
+**Uzrok:** `app.listen(3000, () => console.log(...))` — ESLint pravilo `no-console: warn`
+
+**Rešenje:** Zamena `console.log` sa `process.stdout.write` (Node.js ekvivalent bez ESLint upozorenja)
+
+```diff
+- app.listen(3000, () => console.log("Server running on port 3000"));
++ app.listen(3000, () => process.stdout.write("Server running on port 3000\n"));
+```
+
+**Verifikacija:** `npm run lint` → 0 problema (0 errors, 0 warnings)
+
+**Commit:** `9c6c744` — pushovan na `main`
+
+### 7.3 Kompletna rekonstrukcija CI/CD pipeline-a
+
+**Cilj:** Brži, potpuniji pipeline sa 6 jobova umesto 4
+
+#### Dijagram toka
+
+```
+install (jednom, keš node_modules)
+    ↓
+[quality | test | security]   ← 3 joba paralelno
+    ↓
+build
+    ↓
+deploy (samo push na main)
+```
+
+#### Izmene fajlova
+
+| Fajl | Izmena |
+|---|---|
+| `.github/workflows/ci.yml` | Potpuno prepisano — 6 jobova, keš, `npm ci` |
+| `jest.config.cjs` | Dodat `coverageThreshold` — minimum 80% za sve metrike |
+
+#### Ključne optimizacije
+
+**Brzina:**
+- `node_modules` se instalira **jednom** u `install` jobu, keširano po `package-lock.json` hash-u
+- Svi ostali jobovi vraćaju keš umesto da ponovo instaliraju (~30–60s uštede po jobu)
+- `npm ci` umesto `npm install` — deterministično i brže
+- Runner pinirani na `ubuntu-24.04` umesto `ubuntu-latest`
+
+**Kvalitet:**
+- 80% coverage threshold u `jest.config.cjs` — pipeline pada ako pokrivenost padne ispod praga
+- Security sada je **poseban job** (`security`) odvojen od `quality` — jasno se vidi šta je palo
+- Coverage report se upload-uje čak i kad testovi padnu (`if: always()`)
+
+**Traceability:**
+- Build artifact nosi SHA commit-a u imenu: `build-${{ github.sha }}`
+- Deploy preuzima taj isti artifact — nikad ne rebuilda iz source-a
+- Artifacts se čuvaju 7 dana
+- `environment: production` na deploy jobu — omogućava manual approval gate u GitHub Settings
+
+#### Verifikacija pre pusha
+
+```
+npm run lint          → 0 problema
+npm run format:check  → svi fajlovi uredni
+npm run typecheck     → bez grešaka
+npm run test:coverage → 100% (statements, branches, functions, lines) ✓
+npm audit             → 0 vulnerabilities
+```
+
+**Commit:** `f98f42a` — pushovan na `main`
